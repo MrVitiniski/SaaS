@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login do Cliente</title>
+    <!-- Se usar Tailwind ou o seu próprio style.css, inclua aqui -->
+    <link rel="stylesheet" href="css/style.css"> 
+</head>
+<body>
+    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
+        <h2>Área do Cliente</h2>
+        <!-- O JS vai preencher o nome da empresa aqui dinamicamente -->
+        <p id="nome-estabelecimento">Carregando...</p> 
+
+        <form id="form-login">
+            <div>
+                <label>E-mail:</label>
+                <input type="email" id="login-email" required style="width: 100%; margin-bottom: 10px;">
+            </div>
+            <div>
+                <label>Senha:</label>
+                <input type="password" id="login-senha" required style="width: 100%; margin-bottom: 15px;">
+            </div>
+            <button type="submit" style="width: 100%; padding: 10px;">Entrar</button>
+        </form>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

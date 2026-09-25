@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - SaaS</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Barra Lateral de Navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 id="nome-empresa-admin">Painel Admin</h2>
+                <p>Gerenciamento Geral</p>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#" class="active">📅 Agendamentos</a>
+                <a href="#" id="btn-logout-admin" class="logout-link">🚪 Sair do Painel</a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="welcome-text">
+                    <h1>Agenda de Clientes</h1>
+                    <p>Gerencie os horários, pedidos e o status dos agendamentos em tempo real.</p>
+                </div>
+            </header>
+
+            <!-- Cards de Resumo -->
+            <section class="dashboard-cards">
+                <div class="card bg-alert">
+                    <h3>Pendentes</h3>
+                    <p id="total-pendentes">0</p>
+                </div>
+                <div class="card bg-success">
+                    <h3>Confirmados</h3>
+                    <p id="total-confirmados">0</p>
+                </div>
+                <div class="card bg-info">
+                    <h3>Total Geral</h3>
+                    <p id="total-geral">0</p>
+                </div>
+            </section>
+
+            <!-- Tabela de Dados -->
+            <section class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Data / Hora</th>
+                            <th>Cliente</th>
+                            <th>Serviço / Item Opcional</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Ações Administrativas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-admin-corpo">
+                        <tr>
+                            <td colspan="6" class="text-center">Carregando os agendamentos da empresa...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script de Controle do Painel -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Painel de Agendamentos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div style="max-width: 900px; margin: 30px auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+            <div>
+                <h1 id="cliente-boas-vindas" style="margin:0;">Olá!</h1>
+                <p style="margin: 5px 0 0 0; color:#666;">Acompanhe abaixo o histórico dos seus agendamentos neste estabelecimento.</p>
+            </div>
+            <div>
+                <a href="#" id="btn-logout" style="color: #dc3545; text-decoration: none; font-weight: bold;">Sair da Conta</a>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 25px;">Seus Agendamentos</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="padding:10px; border-bottom:2px solid #ddd;">Data / Hora</th>
+                    <th style="padding:10px; border-bottom:2px solid #ddd;">Serviço</th>
+                    <th style="padding:10px; border-bottom:2px solid #ddd;">Item Opcional</th>
+                    <th style="padding:10px; border-bottom:2px solid #ddd;">Valor Total</th>
+                    <th style="padding:10px; border-bottom:2px solid #ddd;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-agendamentos-corpo">
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px; color:#999;">Carregando seus agendamentos...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px; text-align: right;">
+            <button onclick="window.location.href='index.html'+window.location.search" style="padding: 10px 20px; cursor: pointer;">Novo Agendamento</button>
+        </div>
+    </div>
+
+    <script src="js/painel.js"></script>
+</body>
+</html>

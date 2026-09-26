@@ -1,33 +1,47 @@
 <?php
-// api/checar_sessao.php
 require_once '../config/conexao.php';
 require_once '../config/controle_sessao.php';
 
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header('Content-Type: application/json; charset=UTF-8');
 
-// Verifica se o cliente está logado na sessão
-if (isset($_SESSION['cliente_logado']) && $_SESSION['cliente_logado'] === true && isset($_SESSION['cliente_id'])) {
+if (usuarioEhCliente()) {
     try {
-        // Busca os dados atualizados diretamente no banco de dados
-        $stmt = $pdo->prepare("SELECT nome, telefone, email FROM clientes WHERE id = :id");
-        $stmt->execute(['id' => $_SESSION['cliente_id']]);
+        $stmt = $pdo->prepare('SELECT id, nome, telefone, email, tenant_id FROM clientes WHERE id = :id AND tenant_id = :tenant_id LIMIT 1');
+        $stmt->execute([
+            'id' => $_SESSION['cliente_id'],
+            'tenant_id' => $_SESSION['tenant_id'],
+        ]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($cliente) {
             echo json_encode([
-                "logado" => true,
-                "cliente" => [
-                    "nome"     => $cliente['nome'],
-                    "telefone" => $cliente['telefone'],
-                    "email"    => $cliente['email']
-                ]
+                'logado' => true,
+                'tipo' => 'cliente',
+                'tenant_id' => (int) $cliente['tenant_id'],
+                'cliente' => [
+                    'id' => (int) $cliente['id'],
+                    'nome' => $cliente['nome'],
+                    'telefone' => $cliente['telefone'],
+                    'email' => $cliente['email'],
+                ],
             ]);
             exit;
         }
     } catch (PDOException $e) {
-        // Silencia o erro de banco para o front e retorna falso
     }
 }
 
-echo json_encode(["logado" => false]);
+if (usuarioEhAdmin()) {
+    echo json_encode([
+        'logado' => true,
+        'tipo' => 'admin',
+        'tenant_id' => (int) $_SESSION['tenant_id'],
+        'admin' => [
+            'nome' => $_SESSION['admin_nome'] ?? 'Administrador',
+            'tenant_slug' => $_SESSION['tenant_slug'] ?? null,
+        ],
+    ]);
+    exit;
+}
+
+echo json_encode(['logado' => false]);

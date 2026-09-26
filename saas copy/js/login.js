@@ -1,80 +1,66 @@
-// js/login.js
-
-document.addEventListener('DOMContentLoaded', () => {
-  let tenantIdAtual = null;
-
-  // 1. TRAVA DE SEGURANÇA: Captura o tenant estritamente da URL
-  const obterTenantDaUrl = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('tenant');
-  };
-
-  const tenantSlug = obterTenantDaUrl();
+document.addEventListener('DOMContentLoaded', async () => {
+  const feedback = document.getElementById('login-feedback');
+  const formLogin = document.getElementById('form-login');
+  const submitButton = document.getElementById('btn-submit-login');
+  const tenantLabel = document.getElementById('nome-estabelecimento');
+  const linkRegistrar = document.getElementById('link-registrar');
+  const tenantSlug = Auth.getTenantSlug();
 
   if (!tenantSlug) {
-    alert("Erro: Nenhum estabelecimento foi informado na URL.");
-    window.location.href = "index.html";
+    Auth.setFeedback(feedback, 'error', 'Escolha um estabelecimento antes de acessar a área do cliente.');
+    formLogin?.setAttribute('hidden', 'hidden');
+    tenantLabel.textContent = 'Estabelecimento não informado';
     return;
   }
 
-  // 2. BUSCA CONTEXTO DO TENANT
-  const inicializarLoginContextual = async () => {
-    try {
-      const resposta = await fetch(`http://localhost:8080/saas/api/buscar_servicos.php?tenant=${tenantSlug}`);
-      const dados = await resposta.json();
+  linkRegistrar.href = Auth.buildPageUrl('registrar_cliente.html', tenantSlug);
 
-      if (!dados.erro && dados.tenant_id) {
-        tenantIdAtual = dados.tenant_id;
-        const txtTitulo = document.getElementById('nome-estabelecimento');
-        if (txtTitulo) txtTitulo.textContent = dados.empresa;
-      } else {
-        alert("Estabelecimento inválido ou não cadastrado.");
-        window.location.href = "index.html";
-      }
-    } catch (erro) {
-      console.error("Erro ao carregar contexto do tenant:", erro);
-    }
-  };
-
-  // 3. ENVIO DO FORMULÁRIO DE LOGIN
-  const formLogin = document.getElementById('form-login');
-  if (formLogin) {
-    formLogin.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      if (!tenantIdAtual) {
-        alert("Erro: Estabelecimento inválido ou não identificado.");
-        return;
-      }
-
-      const dadosLogin = {
-        email: document.getElementById('login-email').value,
-        senha: document.getElementById('login-senha').value,
-        tenant_id: tenantIdAtual
-      };
-
-      try {
-        const resposta = await fetch('http://localhost:8080/saas/api/login_cliente.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dadosLogin)
-        });
-
-        const resultado = await resposta.json();
-
-        if (resultado.erro) {
-          alert(resultado.erro);
-        } else if (resultado.sucesso) {
-          alert(resultado.mensagem);
-          window.location.href = `painel_cliente.html?tenant=${tenantSlug}`;
-        }
-
-      } catch (erro) {
-        console.error("Erro ao fazer login:", erro);
-        alert("Não foi possível conectar ao servidor.");
-      }
-    });
+  try {
+    const tenant = await Auth.loadTenantContext(tenantSlug);
+    tenantLabel.textContent = tenant.empresa;
+  } catch (error) {
+    tenantLabel.textContent = 'Estabelecimento inválido';
+    Auth.setFeedback(feedback, 'error', error.message);
+    formLogin?.setAttribute('hidden', 'hidden');
+    return;
   }
 
-  inicializarLoginContextual();
+  formLogin?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    Auth.clearFeedback(feedback);
+
+    const email = document.getElementById('login-email').value.trim();
+    const senha = document.getElementById('login-senha').value;
+
+    if (!Auth.validateEmail(email)) {
+      Auth.setFeedback(feedback, 'error', 'Informe um e-mail válido.');
+      return;
+    }
+
+    if (senha.trim().length < 6) {
+      Auth.setFeedback(feedback, 'error', 'Informe uma senha com pelo menos 6 caracteres.');
+      return;
+    }
+
+    submitButton.disabled = true;
+
+    try {
+      const tenant = await Auth.loadTenantContext(tenantSlug);
+      const resultado = await Auth.fetchJson('api/login_cliente.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          senha,
+          tenant_id: tenant.tenant_id
+        })
+      });
+
+      Auth.setFeedback(feedback, 'success', resultado.mensagem || 'Login realizado com sucesso.');
+      window.location.href = Auth.buildPageUrl('painel_cliente.html', tenantSlug);
+    } catch (error) {
+      Auth.setFeedback(feedback, 'error', error.message || 'Não foi possível conectar ao servidor.');
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
 });

@@ -1,47 +1,36 @@
 <?php
-// api/buscar_agendamentos_cliente.php
 require_once '../config/conexao.php';
-require_once '../config/controle_sessao.php'; // Adicione esta linha!
+require_once '../config/controle_sessao.php';
 
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header('Content-Type: application/json; charset=UTF-8');
 
-// Inicia a sessão para validar o login do PHP
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+verificarAcessoAPI('cliente');
 
-// 1. PROTEÇÃO: Verifica se o cliente está realmente logado
-if (!isset($_SESSION['cliente_logado']) || !isset($_SESSION['cliente_id'])) {
-    http_response_code(401);
-    echo json_encode(["erro" => "Não autorizado. Por favor, faça login."]);
-    exit;
-}
+$clienteId = (int) $_SESSION['cliente_id'];
+$tenantIdSessao = (int) $_SESSION['tenant_id'];
+$slug = isset($_GET['tenant']) ? trim((string) $_GET['tenant']) : '';
 
-$clienteId = $_SESSION['cliente_id'];
-$slug = isset($_GET['tenant']) ? trim($_GET['tenant']) : '';
-
-if (empty($slug)) {
-    echo json_encode(["erro" => "Nenhum estabelecimento foi informado."]);
+if ($slug === '') {
+    http_response_code(422);
+    echo json_encode(['erro' => 'Nenhum estabelecimento foi informado.']);
     exit;
 }
 
 try {
-    // 2. Busca o Tenant para garantir o ID numérico correto e o isolamento dos dados
-    $stmtTenant = $pdo->prepare("SELECT id FROM tenants WHERE slug = :slug");
+    $stmtTenant = $pdo->prepare('SELECT id FROM tenants WHERE slug = :slug LIMIT 1');
     $stmtTenant->execute(['slug' => $slug]);
     $tenant = $stmtTenant->fetch();
 
-    if (!$tenant) {
-        echo json_encode(["erro" => "Estabelecimento não encontrado."]);
+    if (!$tenant || (int) $tenant['id'] !== $tenantIdSessao) {
+        http_response_code(403);
+        echo json_encode(['erro' => 'Você não tem permissão para acessar este estabelecimento.']);
         exit;
     }
 
-    // 3. Busca os agendamentos do cliente trazendo dados do Serviço e do Produto Opcional (se houver)
     $sql = "SELECT 
-                a.id, 
-                a.data_agendamento, 
-                a.hora_agendamento, 
+                a.id,
+                a.data_agendamento,
+                a.hora_agendamento,
                 a.status,
                 s.nome AS servico_nome,
                 s.preco AS servico_preco,
@@ -56,17 +45,17 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'cliente_id' => $clienteId,
-        'tenant_id'  => $tenant['id']
+        'tenant_id' => $tenantIdSessao,
     ]);
-    
+
     $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
-        "sucesso" => true,
-        "cliente_nome" => $_SESSION['cliente_nome'],
-        "agendamentos" => $agendamentos
+        'sucesso' => true,
+        'cliente_nome' => $_SESSION['cliente_nome'],
+        'agendamentos' => $agendamentos,
     ]);
-
 } catch (PDOException $e) {
-    echo json_encode(["erro" => "Erro interno no servidor: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(['erro' => 'Erro interno no servidor.']);
 }

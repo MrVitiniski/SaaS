@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Login do Cliente</title>
-    <!-- Se usar Tailwind ou o seu próprio style.css, inclua aqui -->
-    <link rel="stylesheet" href="css/style.css"> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login do Cliente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
-        <h2>Área do Cliente</h2>
-        <!-- O JS vai preencher o nome da empresa aqui dinamicamente -->
-        <p id="nome-estabelecimento">Carregando...</p> 
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid w-full gap-8 rounded-[2rem] border border-slate-800 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/30 lg:grid-cols-2 lg:p-10">
+      <section class="flex flex-col justify-between space-y-6 rounded-[1.5rem] bg-gradient-to-br from-indigo-600 to-slate-900 p-8">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-100/80">Acesso do cliente</p>
+          <h1 class="mt-4 text-3xl font-black leading-tight">Entre para acompanhar e organizar seus agendamentos.</h1>
+          <p class="mt-4 text-sm text-indigo-100/80">Seu login é vinculado ao estabelecimento selecionado para manter o ambiente multi-tenant isolado e seguro.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <p class="text-xs uppercase tracking-[0.3em] text-indigo-100/70">Estabelecimento</p>
+          <p id="nome-estabelecimento" class="mt-2 text-xl font-semibold">Carregando...</p>
+        </div>
+      </section>
 
-        <form id="form-login">
-            <div>
-                <label>E-mail:</label>
-                <input type="email" id="login-email" required style="width: 100%; margin-bottom: 10px;">
-            </div>
-            <div>
-                <label>Senha:</label>
-                <input type="password" id="login-senha" required style="width: 100%; margin-bottom: 15px;">
-            </div>
-            <button type="submit" style="width: 100%; padding: 10px;">Entrar</button>
+      <section class="flex flex-col justify-center">
+        <div id="login-feedback" class="hidden mb-4 rounded-2xl border px-4 py-3 text-sm"></div>
+        <form id="form-login" class="space-y-5" novalidate>
+          <div>
+            <label for="login-email" class="mb-2 block text-sm font-medium text-slate-200">E-mail</label>
+            <input type="email" id="login-email" required autocomplete="email" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/40" placeholder="voce@exemplo.com">
+          </div>
+          <div>
+            <label for="login-senha" class="mb-2 block text-sm font-medium text-slate-200">Senha</label>
+            <input type="password" id="login-senha" required minlength="6" autocomplete="current-password" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/40" placeholder="••••••••">
+          </div>
+          <button id="btn-submit-login" type="submit" class="w-full rounded-2xl bg-indigo-500 px-4 py-3 font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70">Entrar</button>
         </form>
-    </div>
 
-    <script src="js/login.js"></script>
+        <div class="mt-6 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+          <a id="link-registrar" href="registrar_cliente.html" class="font-medium text-indigo-300 transition hover:text-indigo-200">Não tem cadastro? Registre-se</a>
+          <a href="index.html" class="font-medium text-slate-300 transition hover:text-white">Voltar ao início</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>

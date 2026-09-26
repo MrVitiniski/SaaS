@@ -1,45 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Meu Painel de Agendamentos</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Cliente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div style="max-width: 900px; margin: 30px auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px;">
-            <div>
-                <h1 id="cliente-boas-vindas" style="margin:0;">Olá!</h1>
-                <p style="margin: 5px 0 0 0; color:#666;">Acompanhe abaixo o histórico dos seus agendamentos neste estabelecimento.</p>
-            </div>
-            <div>
-                <a href="#" id="btn-logout" style="color: #dc3545; text-decoration: none; font-weight: bold;">Sair da Conta</a>
-            </div>
-        </div>
-
-        <h3 style="margin-top: 25px;">Seus Agendamentos</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left;">
-            <thead>
-                <tr style="background-color: #f8f9fa;">
-                    <th style="padding:10px; border-bottom:2px solid #ddd;">Data / Hora</th>
-                    <th style="padding:10px; border-bottom:2px solid #ddd;">Serviço</th>
-                    <th style="padding:10px; border-bottom:2px solid #ddd;">Item Opcional</th>
-                    <th style="padding:10px; border-bottom:2px solid #ddd;">Valor Total</th>
-                    <th style="padding:10px; border-bottom:2px solid #ddd;">Status</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-agendamentos-corpo">
-                <tr>
-                    <td colspan="5" style="text-align:center; padding:20px; color:#999;">Carregando seus agendamentos...</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div style="margin-top: 30px; text-align: right;">
-            <button onclick="window.location.href='index.html'+window.location.search" style="padding: 10px 20px; cursor: pointer;">Novo Agendamento</button>
-        </div>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-8 flex flex-col gap-4 rounded-[2rem] border border-slate-800 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/30 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Área do cliente</p>
+        <h1 id="cliente-boas-vindas" class="mt-2 text-3xl font-black">Olá!</h1>
+        <p class="mt-2 text-sm text-slate-400">Visualize seus próximos horários, acompanhe o histórico e solicite novas reservas.</p>
+      </div>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <a id="btn-novo-agendamento" href="#" class="inline-flex items-center justify-center rounded-2xl bg-indigo-500 px-5 py-3 font-semibold text-white transition hover:bg-indigo-400">Fazer novo agendamento</a>
+        <button id="btn-logout" type="button" class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-5 py-3 font-semibold text-rose-200 transition hover:bg-rose-500/20">Logout</button>
+      </div>
     </div>
 
-    <script src="js/painel.js"></script>
+    <div id="painel-feedback" class="hidden mb-6 rounded-2xl border px-4 py-3 text-sm"></div>
+
+    <section class="mb-8 grid gap-4 sm:grid-cols-3">
+      <article class="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
+        <p class="text-sm text-slate-400">Próximos agendamentos</p>
+        <p id="resumo-futuros" class="mt-2 text-3xl font-black">0</p>
+      </article>
+      <article class="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
+        <p class="text-sm text-slate-400">Histórico</p>
+        <p id="resumo-passados" class="mt-2 text-3xl font-black">0</p>
+      </article>
+      <article class="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
+        <p class="text-sm text-slate-400">Canceláveis agora</p>
+        <p id="resumo-cancelaveis" class="mt-2 text-3xl font-black">0</p>
+      </article>
+    </section>
+
+    <div class="grid gap-6 xl:grid-cols-2">
+      <section class="rounded-[2rem] border border-slate-800 bg-slate-900/70 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Próximos agendamentos</h2>
+          <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-200">Ações rápidas</span>
+        </div>
+        <div id="lista-futuros" class="space-y-4">
+          <p class="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-5 text-sm text-slate-400">Carregando seus agendamentos...</p>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-slate-800 bg-slate-900/70 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Agendamentos passados</h2>
+          <span class="rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300">Histórico</span>
+        </div>
+        <div id="lista-passados" class="space-y-4">
+          <p class="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-5 text-sm text-slate-400">Carregando seu histórico...</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/painel.js"></script>
 </body>
 </html>

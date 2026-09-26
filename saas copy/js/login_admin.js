@@ -1,40 +1,39 @@
-// js/login_admin.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('form-login-admin');
+  const feedback = document.getElementById('admin-feedback');
+  const form = document.getElementById('form-login-admin');
+  const submitButton = document.getElementById('btn-submit-admin');
 
-    if (form) {
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    Auth.clearFeedback(feedback);
 
-            const dadosLogin = {
-                email: document.getElementById('admin-email').value,
-                senha: document.getElementById('admin-senha').value
-            };
+    const email = document.getElementById('admin-email').value.trim();
+    const senha = document.getElementById('admin-senha').value;
 
-            try {
-                const resposta = await fetch('http://localhost:8080/saas/api/login_admin.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dadosLogin)
-                });
-
-                const resultado = await resposta.json();
-
-                if (resultado.erro) {
-                    alert(resultado.erro);
-                } else if (resultado.sucesso) {
-                    alert(resultado.mensagem);
-                    // Redireciona direto para o painel administrativo da empresa correspondente
-                    window.location.href = "admin_dashboard.html";
-                }
-
-            } catch (erro) {
-                console.error("Erro na autenticação:", erro);
-                alert("Não foi possível conectar ao servidor administrativo.");
-            }
-        });
+    if (!Auth.validateEmail(email)) {
+      Auth.setFeedback(feedback, 'error', 'Informe um e-mail administrativo válido.');
+      return;
     }
+
+    if (senha.trim().length < 6) {
+      Auth.setFeedback(feedback, 'error', 'Informe a senha administrativa com pelo menos 6 caracteres.');
+      return;
+    }
+
+    submitButton.disabled = true;
+
+    try {
+      const resultado = await Auth.fetchJson('api/login_admin.php', {
+        method: 'POST',
+        body: JSON.stringify({ email, senha })
+      });
+
+      Auth.setFeedback(feedback, 'success', resultado.mensagem || 'Autenticação realizada com sucesso.');
+      window.location.href = 'admin_dashboard.html';
+    } catch (error) {
+      Auth.setFeedback(feedback, 'error', error.message || 'Não foi possível conectar ao servidor administrativo.');
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
 });

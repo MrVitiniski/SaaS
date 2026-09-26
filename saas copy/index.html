@@ -3,166 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Agendamento Online</title>
-  <meta name="description" content="Agendamento online de serviços com seleção de serviço, profissional, data e horário." />
-
-  <!-- Otimização de conexão -->
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
-  <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
-
-  <!-- Tailwind CDN (correto para dev) -->
+  <title>SaaS de Agendamentos | Acesso</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body class="min-h-screen flex flex-col justify-between bg-slate-50 text-slate-800 font-sans antialiased">
-  <!-- Header / Identificação da Empresa -->
-  <header class="bg-white border-b border-slate-200 py-6 text-center">
-    <h1 id="tenant-name" class="text-2xl font-bold text-indigo-600">Carregando estabelecimento...</h1>
-    <p class="mt-1 text-sm text-slate-500">Escolha os detalhes abaixo para reservar seu horário</p>
-  </header>
-
-  <!-- Conteúdo Principal / Formulário de Agendamento -->
-  <main class="w-full max-w-xl mx-auto p-4 my-auto">
-    <form id="form-agendamento" class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 space-y-6" novalidate>
-      
-      <!-- Passo 1: Selecionar Serviço (Carregado dinamicamente via banco) -->
-      <section id="bloco-servicos">
-        <label for="select-servico" class="block text-sm font-semibold text-slate-700 mb-2">
-          1. Escolha o Serviço
-        </label>
-        <select
-          id="select-servico"
-          name="servico"
-          class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-          required
-          autocomplete="off"
-        >
-          <option value="">Carregando serviços disponíveis...</option>
-        </select>
-      </section>
-
-      <!-- NOVO PASSO: Selecionar Produto Adicional (Inicia oculto, aparece dinamicamente via JS) -->
-      <section id="bloco-produtos" class="hidden">
-        <label for="select-produto" class="block text-sm font-semibold text-slate-700 mb-2">
-          (Opcional) Adicionar produtos à sua reserva
-        </label>
-        <select
-          id="select-produto"
-          name="produto"
-          class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-          autocomplete="off"
-        >
-          <option value="">Deseja levar algum item junto?</option>
-        </select>
-      </section>
-
-      <!-- Passo 2: Selecionar Profissional (Carregado dinamicamente via banco) -->
-      <section id="bloco-profissionais">
-        <label for="select-profissional" class="block text-sm font-semibold text-slate-700 mb-2">
-          2. Escolha o Profissional / Atendente
-        </label>
-        <select
-          id="select-profissional"
-          name="profissional"
-          class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-          required
-          autocomplete="off"
-        >
-          <option value="">Selecione quem irá te atender...</option>
-          <option value="1">Carlos Souza</option>
-          <option value="2">Ana Beatriz</option>
-        </select>
-      </section>
-
-      <!-- Passo 3 e 4: Data e Hora -->
-      <section class="grid grid-cols-2 gap-4">
-        <div>
-          <label for="input-data" class="block text-sm font-semibold text-slate-700 mb-2">3. Data</label>
-          <input
-            type="date"
-            id="input-data"
-            name="data"
-            class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-            required
-          />
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+      <section class="space-y-6">
+        <span class="inline-flex rounded-full border border-indigo-500/40 bg-indigo-500/10 px-4 py-1 text-sm font-medium text-indigo-200">SaaS multi-tenant de agendamentos</span>
+        <div class="space-y-4">
+          <h1 class="text-4xl font-black tracking-tight sm:text-5xl">Acesse sua agenda com uma experiência pronta para uso.</h1>
+          <p class="max-w-2xl text-lg text-slate-300">Entre como cliente para acompanhar seus agendamentos ou acesse o painel administrativo para gerenciar seu negócio.</p>
         </div>
-
-        <div>
-          <label for="input-hora" class="block text-sm font-semibold text-slate-700 mb-2">4. Horário</label>
-          <input
-            type="time"
-            id="input-hora"
-            name="hora"
-            class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-            required
-          />
-        </div>
+        <div id="tenant-highlight" class="hidden rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100"></div>
       </section>
 
-      <!-- Passo 5: Dados do Cliente -->
-      <section class="border-t border-slate-100 pt-4 space-y-4">
-        <h2 class="text-sm font-semibold text-slate-700">5. Seus Dados</h2>
+      <section class="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur">
+        <div id="home-feedback" class="hidden mb-4 rounded-2xl border px-4 py-3 text-sm"></div>
 
-        <div>
-          <label for="cliente-nome" class="sr-only">Seu nome completo</label>
-          <input
-            type="text"
-            id="cliente-nome"
-            name="cliente_nome"
-            placeholder="Seu nome completo"
-            class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-            required
-            autocomplete="name"
-          />
-        </div>
+        <div class="space-y-6">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+            <div class="mb-4">
+              <h2 class="text-xl font-semibold">Sou cliente</h2>
+              <p class="mt-1 text-sm text-slate-400">Informe o identificador do seu estabelecimento para continuar com login, cadastro ou novo agendamento.</p>
+            </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="cliente-telefone" class="sr-only">WhatsApp</label>
-            <input
-              type="tel"
-              id="cliente-telefone"
-              name="cliente_telefone"
-              placeholder="WhatsApp (DDD + Número)"
-              class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-              required
-              autocomplete="tel"
-              inputmode="tel"
-            />
+            <label for="tenant-slug" class="mb-2 block text-sm font-medium text-slate-200">Identificador do estabelecimento</label>
+            <input id="tenant-slug" type="text" placeholder="ex.: barbearia-premium" class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/40" autocomplete="off" />
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <button id="btn-login-cliente" type="button" class="rounded-2xl bg-indigo-500 px-4 py-3 font-semibold text-white transition hover:bg-indigo-400">Login do Cliente</button>
+              <button id="btn-registrar-cliente" type="button" class="rounded-2xl border border-slate-700 px-4 py-3 font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-800">Registrar Cliente</button>
+            </div>
+
+            <button id="btn-novo-agendamento" type="button" class="mt-3 w-full rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 font-semibold text-emerald-200 transition hover:bg-emerald-500/20">Fazer novo agendamento</button>
           </div>
 
-          <div>
-            <label for="cliente-email" class="sr-only">E-mail</label>
-            <input
-              type="email"
-              id="cliente-email"
-              name="cliente_email"
-              placeholder="E-mail (opcional)"
-              class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 outline-none"
-              autocomplete="email"
-            />
+          <div class="rounded-2xl border border-slate-800 bg-slate-950/50 p-5">
+            <h2 class="text-xl font-semibold">Sou administrador</h2>
+            <p class="mt-1 text-sm text-slate-400">Acesse o painel da sua empresa para acompanhar e atualizar os agendamentos.</p>
+            <a href="login_admin.html" class="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-slate-100 px-4 py-3 font-semibold text-slate-900 transition hover:bg-white">Acesso do Admin</a>
           </div>
         </div>
       </section>
-
-      <!-- Botão de Confirmação -->
-      <button
-        type="submit"
-        class="w-full text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-xl text-sm px-5 py-4 text-center transition-all shadow-md shadow-indigo-200 active:scale-[0.98] cursor-pointer"
-      >
-        Confirmar Agendamento
-      </button>
-    </form>
+    </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-100 bg-white">
-    &copy; 2026 SaaS Multi-Modular. Todos os direitos reservados.
-  </footer>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const feedback = document.getElementById('home-feedback');
+      const tenantInput = document.getElementById('tenant-slug');
+      const tenantHighlight = document.getElementById('tenant-highlight');
+      const tenantFromQuery = Auth.getTenantSlug();
 
-  <!-- Roteador do SaaS e Script de Agendamento -->
-  <script src="js/SaaSRouter.js"></script>
-  <script src="js/agendamento.js" defer></script>
+      if (tenantFromQuery) {
+        tenantInput.value = tenantFromQuery;
+        try {
+          const tenant = await Auth.loadTenantContext(tenantFromQuery);
+          tenantHighlight.textContent = `Estabelecimento identificado: ${tenant.empresa}.`;
+          tenantHighlight.classList.remove('hidden');
+        } catch (error) {
+          Auth.setFeedback(feedback, 'error', error.message || 'Não foi possível identificar o estabelecimento informado.');
+        }
+      }
+
+      const redirectTo = (page) => {
+        const tenantSlug = tenantInput.value.trim();
+        if (!tenantSlug) {
+          Auth.setFeedback(feedback, 'error', 'Informe o identificador do estabelecimento para continuar como cliente.');
+          tenantInput.focus();
+          return;
+        }
+
+        window.location.href = Auth.buildPageUrl(page, tenantSlug);
+      };
+
+      document.getElementById('btn-login-cliente').addEventListener('click', () => redirectTo('login.html'));
+      document.getElementById('btn-registrar-cliente').addEventListener('click', () => redirectTo('registrar_cliente.html'));
+      document.getElementById('btn-novo-agendamento').addEventListener('click', () => redirectTo('agendamento.html'));
+    });
+  </script>
 </body>
 </html>

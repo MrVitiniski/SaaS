@@ -1,8 +1,4 @@
-// js/admin.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. CARREGAR TODOS OS AGENDAMENTOS E ATUALIZAR CONTADORES
     const carregarDashboardAdmin = async () => {
         const tabelaCorpo = document.getElementById('tabela-admin-corpo');
         const totalPendentes = document.getElementById('total-pendentes');
@@ -10,24 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalGeral = document.getElementById('total-geral');
 
         try {
-            // Consome a API administrativa criada anteriormente
-            const resposta = await fetch('http://localhost:8080/saas/api/buscar_agendamentos_admin.php');
-            
-            // Se o PHP retornar 401 (Não autorizado), redireciona o admin para o login
-            if (resposta.status === 401) {
-                alert("Sessão administrativa expirada ou inválida. Por favor, faça login.");
-                window.location.href = "login_admin.html"; // Altere se o nome do arquivo de login admin for diferente
-                return;
-            }
+            const dados = await Auth.fetchJson('api/buscar_agendamentos_admin.php', { headers: {} });
 
-            const dados = await resposta.json();
-
-            if (dados.erro) {
-                alert(dados.erro);
-                return;
-            }
-
-            // Inicializa variáveis para os contadores dos cards superiores
             let qtdPendentes = 0;
             let qtdConfirmados = 0;
 
@@ -41,23 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Atualiza o contador geral com base no retorno da API
             if (totalGeral) totalGeral.textContent = dados.total_agendamentos;
 
-            // Renderiza cada linha da tabela
             dados.agendamentos.forEach(agenda => {
                 const tr = document.createElement('tr');
 
-                // Incrementa contadores baseado no status atual
                 if (agenda.status === 'pendente') qtdPendentes++;
                 if (agenda.status === 'confirmado') qtdConfirmados++;
 
-                // Formata Data (AAAA-MM-DD para DD/MM/AAAA)
                 const [ano, mes, dia] = agenda.data_agendamento.split('-');
                 const dataFormatada = `${dia}/${mes}/${ano}`;
                 const horaFormatada = agenda.hora_agendamento.substring(0, 5);
 
-                // Calcula o Valor Total do faturamento (Serviço + Produto Opcional se houver)
                 let valorTotal = parseFloat(agenda.servico_preco);
                 let detalheItens = `<strong>${agenda.servico_nome}</strong>`;
 
@@ -66,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     detalheItens += `<br><span style="font-size:12px; color:#64748b;">📦 + Opcional: ${agenda.produto_nome}</span>`;
                 }
 
-                // Bloco de Botões Dinâmicos de Acordo com o Status
                 let botoesAcao = '';
                 if (agenda.status === 'pendente') {
                     botoesAcao = `
@@ -97,49 +71,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabelaCorpo.appendChild(tr);
             });
 
-            // Atualiza os elementos visuais dos cards com a contagem calculada
             if (totalPendentes) totalPendentes.textContent = qtdPendentes;
             if (totalConfirmados) totalConfirmados.textContent = qtdConfirmados;
 
-            // Vincula o clique de alteração de status nos novos botões injetados
             ativarEventosDeBotoes();
 
         } catch (erro) {
             console.error('Erro ao carregar dados do admin:', erro);
+            if (String(erro.message || '').toLowerCase().includes('sessão')) {
+                window.location.href = 'login_admin.html';
+                return;
+            }
             tabelaCorpo.innerHTML = `<tr><td colspan="6" class="text-center" style="color: #ef4444;">Erro de conexão com o servidor.</td></tr>`;
         }
     };
 
-    // 2. ATIVAR OS CLIQUES E ENVIAR AS ATUALIZAÇÕES PARA A API DO MYSQL
     const alterarStatusAgendamento = async (id, novoStatus) => {
         try {
-            const resposta = await fetch('http://localhost:8080/saas/api/atualizar_status_agendamento.php', {
+            const resultado = await Auth.fetchJson('api/atualizar_status_agendamento.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({
                     agendamento_id: id,
                     status: novoStatus
                 })
             });
 
-            const resultado = await resposta.json();
-
-            if (resultado.erro) {
-                alert(resultado.erro);
-            } else if (resultado.sucesso) {
-                // Atualiza a listagem inteira na tela de forma assíncrona trazendo os novos status e contadores
+            if (resultado.sucesso) {
                 carregarDashboardAdmin();
             }
         } catch (erro) {
             console.error('Erro ao atualizar status:', erro);
-            alert('Não foi possível alterar o status devido a um erro de conexão.');
+            alert(erro.message || 'Não foi possível alterar o status devido a um erro de conexão.');
         }
     };
 
     const ativarEventosDeBotoes = () => {
-        // Captura cliques no botão "Aceitar"
         document.querySelectorAll('.btn-confirm').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -147,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Captura cliques no botão "Concluir"
         document.querySelectorAll('.btn-finish').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -155,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Captura cliques no botão "Cancelar / Recusar"
         document.querySelectorAll('.btn-cancel').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (confirm('Deseja realmente alterar o status deste agendamento para cancelado?')) {
@@ -166,24 +130,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // 3. LOGOUT DO ADMINISTRADOR
     const btnLogoutAdmin = document.getElementById('btn-logout-admin');
     if (btnLogoutAdmin) {
         btnLogoutAdmin.addEventListener('click', async (e) => {
             e.preventDefault();
             try {
-                // Reaproveita a API de logout que limpa a sessão global do PHP
-                const resposta = await fetch('http://localhost:8080/saas/api/logout_cliente.php');
-                const resultado = await resposta.json();
-                if (resultado.sucesso) {
-                    window.location.href = "login_admin.html";
-                }
+                await Auth.fetchJson('api/logout.php', { headers: {} });
+                window.location.href = 'login_admin.html';
             } catch (erro) {
                 console.error('Erro ao realizar logout:', erro);
             }
         });
     }
 
-    // Inicializa a busca de dados assim que o painel abrir
     carregarDashboardAdmin();
 });
